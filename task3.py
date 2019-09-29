@@ -1,23 +1,20 @@
 import numpy as np
+import math
 
-def get_indices(N, n_batches, split_ratio):
-    """Generates splits of indices from 0 to N-1 into uniformly distributed\
-       batches. Each batch is defined by 3 indices [i, j, k] where\
-       (j-i) = split_ratio*(k-j). The first batch starts with i = 0,\
-       the last one ends with k = N - 1.
-    Args:
-        N (int): total counts
-        n_batches (int): number of splits
-        split_ratio (float): split ratio, defines position of j in [i, j, k].
+def get_indices(length, n_batches, split_ratio): #split_ratio = (0, 1)
+    lenSector = length / (split_ratio * n_batches + 1 - split_ratio);
 
-    Returns:
-        generator for batch indices [i, j, k]
-    """
-    inds = np.array([0, 0, 0])
-    for i in range(n_batches):
-        # todo: move forward batch
-        # calculate new indices
-        yield inds
+    train = np.zeros((n_batches, 2));
+    check = np.zeros((n_batches, 2));
+    trainLen = math.floor(lenSector * split_ratio);
+    checkLen = round(lenSector * (1 - split_ratio));
+
+    for i in range(0, n_batches):
+        train[i][0] = i * trainLen;
+        train[i][1] = (i + 1) * trainLen - 1;
+        check[i][0] = train[i][1] + 1;
+        check[i][1] = train[i][1] + checkLen;
+    return [trainLen, checkLen];
 
 def main():
     for inds in get_indices(100, 5, 0.25):
